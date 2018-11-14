@@ -21,6 +21,7 @@
         <carbon.kernel.version>4.4.35</carbon.kernel.version>
         <httpcore.wso2.version>4.3.3.wso2v1</httpcore.wso2.version>
         <commons.httpclient.version>3.1</commons.httpclient.version>
+        <identity.governance.version>1.1.37</identity.governance.version>
     </properties>
 
     <dependencies>
@@ -48,6 +49,11 @@
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
             <version>${commons.httpclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.governance</groupId>
+            <artifactId>org.wso2.carbon.identity.recovery.stub</artifactId>
+            <version>${identity.governance.version}</version>
         </dependency>
     </dependencies>
 

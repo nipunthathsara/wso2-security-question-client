@@ -33,4 +33,6 @@ public class Constants {
     public static final String TRUST_STORE_PASSWORD = "truststore.password";
     public static final String TRUST_STORE_TYPE = "truststore.type";
 
+    public static final String QUESTIONS_SET_ID = "questions.setid";
+    public static final String QUESTIONS_LOCALE = "questions.locale";
 }

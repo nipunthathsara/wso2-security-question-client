@@ -21,6 +21,7 @@ package org.wso2.recovery.client;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
+import org.wso2.carbon.identity.recovery.stub.ChallengeQuestionManagementAdminServiceIdentityRecoveryExceptionException;
 import org.wso2.recovery.client.util.AuthenticationServiceClient;
 import org.wso2.recovery.client.util.PropertyReader;
 
@@ -31,13 +32,16 @@ import java.util.Properties;
 public class Invoker {
     private static final Logger log = Logger.getLogger(Invoker.class);
     public static Properties configs, questions;
+    public static String tenantDomain;
 
-    public static void main(String[] args) throws RemoteException, LoginAuthenticationExceptionException {
+    public static void main(String[] args) throws RemoteException, LoginAuthenticationExceptionException, ChallengeQuestionManagementAdminServiceIdentityRecoveryExceptionException {
         try {
             initialize();
         } catch (IOException e) {
             log.error("Error while initializing the client.", e);
         }
+
+        // Authenticate tenant
         String cookie;
         try {
             cookie = login();
@@ -47,7 +51,11 @@ public class Invoker {
             throw e;
         }
 
-
+        // Create questions for the tenant
+        if (cookie != null) {
+            QuestionCreator questionCreator = new QuestionCreator(cookie, configs, questions);
+            questionCreator.createQuestions(tenantDomain);
+        }
     }
 
     /**
@@ -81,7 +89,7 @@ public class Invoker {
         // Construct username with tenant domain and password from properties
         String userName = configs.getProperty(Constants.ADMIN_USERNAME);
         String password = configs.getProperty(Constants.ADMIN_PASSWORD);
-        String tenantDomain = userName.substring(userName.lastIndexOf('@') + 1);
+        tenantDomain = userName.substring(userName.lastIndexOf('@') + 1);
         log.info("Authenticating the tenant : " + tenantDomain);
 
         // Return session cookie
