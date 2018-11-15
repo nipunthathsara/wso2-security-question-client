@@ -20,11 +20,15 @@ package org.wso2.recovery.client;
 
 
 import org.apache.axis2.AxisFault;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.client.ServiceClient;
 import org.apache.log4j.Logger;
 import org.wso2.carbon.identity.recovery.stub.ChallengeQuestionManagementAdminServiceIdentityRecoveryExceptionException;
 import org.wso2.carbon.identity.recovery.stub.ChallengeQuestionManagementAdminServiceStub;
 import org.wso2.carbon.identity.recovery.stub.model.ChallengeQuestion;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.Properties;
@@ -39,14 +43,23 @@ public class QuestionCreator {
 
     /**
      * Create stub and populate data to invoke the stub.
+     *
      * @param cookie
      * @param configs
      * @param questions
      * @throws AxisFault
      */
-    public QuestionCreator(String cookie, Properties configs, Properties questions) throws AxisFault {
-        log.info("Creating stub for the server : " + configs.getProperty(Constants.BACK_END_URL));
-        stub = new ChallengeQuestionManagementAdminServiceStub(configs.getProperty(Constants.BACK_END_URL));
+    public QuestionCreator(String cookie, Properties configs, Properties questions) throws AxisFault, MalformedURLException {
+        URL baseUrl = new URL(configs.getProperty(Constants.BACK_END_URL));
+        String serviceUrl = new URL(baseUrl, Constants.CHALLENGE_QUESTION_MGT_SERVICE_PATH).toString();
+        log.info("Creating challenge questions mgt stub for the service URL : " + serviceUrl);
+        stub = new ChallengeQuestionManagementAdminServiceStub(serviceUrl);
+
+        // Configure stub
+        ServiceClient serviceClient = stub._getServiceClient();
+        Options options = serviceClient.getOptions();
+        options.setManageSession(true);
+        options.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
 
         // Read challenge questions
         log.info("Populating challenge questions array.");
@@ -58,7 +71,8 @@ public class QuestionCreator {
             challengeQuestions[i] = new ChallengeQuestion();
             challengeQuestions[i].setLocale(configs.getProperty(Constants.QUESTIONS_LOCALE));
             challengeQuestions[i].setQuestionSetId(configs.getProperty(Constants.QUESTIONS_SET_ID));
-            challengeQuestions[i].setQuestionId(entry.getKey().toString());
+            // Challenge question ID should only contain alpha-numeric values. Removing '.'.
+            challengeQuestions[i].setQuestionId(entry.getKey().toString().replace(".",""));
             challengeQuestions[i].setQuestion(entry.getValue().toString());
             i++;
         }
@@ -66,6 +80,7 @@ public class QuestionCreator {
 
     /**
      * This method creates challenge questions by invoking the stub.
+     *
      * @param tenantDomain
      * @throws RemoteException
      * @throws ChallengeQuestionManagementAdminServiceIdentityRecoveryExceptionException

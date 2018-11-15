@@ -27,16 +27,19 @@ import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.authenticator.stub.LogoutAuthenticationExceptionException;
 import org.wso2.recovery.client.Constants;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.rmi.RemoteException;
 
+/**
+ * This class provides functionality to authenticate the tenant admin to use the stub.
+ */
 public class AuthenticationServiceClient {
     private final static Logger log = Logger.getLogger(AuthenticationServiceClient.class);
-    private AuthenticationAdminStub authenticationAdminStub;
-    private String endPoint;
+    private static AuthenticationAdminStub authenticationAdminStub;
 
-    public AuthenticationServiceClient(String backEndUrl) throws AxisFault {
-        this.endPoint = backEndUrl + Constants.AUTHENTICATOR_SERVICE_NAME;
-        authenticationAdminStub = new AuthenticationAdminStub(endPoint);
+    public AuthenticationServiceClient(String serviceUrl) throws AxisFault {
+        authenticationAdminStub = new AuthenticationAdminStub(serviceUrl);
     }
 
     public String authenticate(String userName, String password, String tenant) throws RemoteException, LoginAuthenticationExceptionException {

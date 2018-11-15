@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * This class provides functionality to read from a given property files.
+ */
 public class PropertyReader {
     private static final Logger log = Logger.getLogger(PropertyReader.class);
 

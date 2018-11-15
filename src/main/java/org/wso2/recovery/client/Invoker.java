@@ -19,13 +19,14 @@
 package org.wso2.recovery.client;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.identity.recovery.stub.ChallengeQuestionManagementAdminServiceIdentityRecoveryExceptionException;
 import org.wso2.recovery.client.util.AuthenticationServiceClient;
 import org.wso2.recovery.client.util.PropertyReader;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.Properties;
 
@@ -34,7 +35,7 @@ public class Invoker {
     public static Properties configs, questions;
     public static String tenantDomain;
 
-    public static void main(String[] args) throws RemoteException, LoginAuthenticationExceptionException, ChallengeQuestionManagementAdminServiceIdentityRecoveryExceptionException {
+    public static void main(String[] args) throws RemoteException, LoginAuthenticationExceptionException, ChallengeQuestionManagementAdminServiceIdentityRecoveryExceptionException, MalformedURLException {
         try {
             initialize();
         } catch (IOException e) {
@@ -45,7 +46,7 @@ public class Invoker {
         String cookie;
         try {
             cookie = login();
-        } catch (RemoteException | LoginAuthenticationExceptionException e) {
+        } catch (RemoteException | LoginAuthenticationExceptionException | MalformedURLException e) {
             log.error("Error while authentication", e);
             // Re throwing to stop the execution further.
             throw e;
@@ -63,7 +64,9 @@ public class Invoker {
      */
     public static void initialize() throws IOException {
         // Set log4j configs
-        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES);
+//        Properties log4j = new Properties();
+//        log4j.load(new FileInputStream(Constants.LOG4J_PROPERTIES));
+//        PropertyConfigurator.configure(log4j);
         // Read client configurations
         configs = PropertyReader.loadProperties(Constants.CONFIGURATION_PROPERTIES);
         // Read questions metadata
@@ -83,8 +86,11 @@ public class Invoker {
      * @throws RemoteException
      * @throws LoginAuthenticationExceptionException
      */
-    public static String login() throws RemoteException, LoginAuthenticationExceptionException {
-        AuthenticationServiceClient authenticator = new AuthenticationServiceClient(configs.getProperty(Constants.BACK_END_URL));
+    public static String login() throws RemoteException, LoginAuthenticationExceptionException, MalformedURLException {
+        URL baseUrl = new URL (configs.getProperty(Constants.BACK_END_URL));
+        String serviceUrl = new URL(baseUrl, Constants.AUTHENTICATOR_SERVICE_PATH).toString();
+
+        AuthenticationServiceClient authenticator = new AuthenticationServiceClient(serviceUrl);
 
         // Construct username with tenant domain and password from properties
         String userName = configs.getProperty(Constants.ADMIN_USERNAME);
@@ -95,5 +101,4 @@ public class Invoker {
         // Return session cookie
         return authenticator.authenticate(userName, password, tenantDomain);
     }
-
 }

@@ -24,7 +24,8 @@ public class Constants {
     public static final String QUESTIONS_PROPERTIES = "questions.properties";
 
     public static final String BACK_END_URL = "backend.url";
-    public static final String AUTHENTICATOR_SERVICE_NAME = "AuthenticationAdmin";
+    public static final String AUTHENTICATOR_SERVICE_PATH = "services/AuthenticationAdmin";
+    public static final String CHALLENGE_QUESTION_MGT_SERVICE_PATH = "services/ChallengeQuestionManagementAdminService";
 
     public static final String ADMIN_USERNAME = "admin.username";
     public static final String ADMIN_PASSWORD = "admin.password";
