@@ -19,6 +19,7 @@
 package org.wso2.recovery.client;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.identity.recovery.stub.ChallengeQuestionManagementAdminServiceIdentityRecoveryExceptionException;
 import org.wso2.recovery.client.util.AuthenticationServiceClient;
@@ -27,6 +28,7 @@ import org.wso2.recovery.client.util.PropertyReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.util.Properties;
 
@@ -64,17 +66,15 @@ public class Invoker {
      */
     public static void initialize() throws IOException {
         // Set log4j configs
-//        Properties log4j = new Properties();
-//        log4j.load(new FileInputStream(Constants.LOG4J_PROPERTIES));
-//        PropertyConfigurator.configure(log4j);
+        PropertyConfigurator.configure(Paths.get(".", Constants.LOG4J_PROPERTIES).toString());
         // Read client configurations
-        configs = PropertyReader.loadProperties(Constants.CONFIGURATION_PROPERTIES);
+        configs = PropertyReader.loadProperties(Paths.get(".", Constants.CONFIGURATION_PROPERTIES).toString());
         // Read questions metadata
-        questions = PropertyReader.loadProperties(Constants.QUESTIONS_PROPERTIES);
+        questions = PropertyReader.loadProperties(Paths.get(".", Constants.QUESTIONS_PROPERTIES).toString());
 
         // Set trust-store configurations to the JVM
         log.info("Initializing : setting trust store configurations to JVM.");
-        System.setProperty("javax.net.ssl.trustStore", configs.getProperty(Constants.TRUST_STORE_PATH));
+        System.setProperty("javax.net.ssl.trustStore", Paths.get(".", configs.getProperty(Constants.TRUST_STORE_PATH)).toString());
         System.setProperty("javax.net.ssl.trustStorePassword", configs.getProperty(Constants.TRUST_STORE_PASSWORD));
         System.setProperty("javax.net.ssl.trustStoreType", configs.getProperty(Constants.TRUST_STORE_TYPE));
     }

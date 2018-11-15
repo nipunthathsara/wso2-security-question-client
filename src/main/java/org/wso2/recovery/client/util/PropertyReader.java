@@ -30,15 +30,15 @@ import java.util.Properties;
 public class PropertyReader {
     private static final Logger log = Logger.getLogger(PropertyReader.class);
 
-    public static Properties loadProperties (String fileName) throws IOException {
-        log.info("Loading properties from : " + fileName);
-        InputStream inputStream = PropertyReader.class.getClassLoader().getResourceAsStream(fileName);
+    public static Properties loadProperties (String filePath) throws IOException {
+        log.info("Loading properties from : " + filePath);
+        InputStream inputStream = PropertyReader.class.getClassLoader().getResourceAsStream(filePath);
         Properties properties = new Properties();
         if (inputStream != null) {
             properties.load(inputStream);
             return properties;
         } else {
-            log.error("Null stream returned for file : " + fileName);
+            log.error("Null stream returned for file : " + filePath);
             System.exit(1);
         }
         return null;
