@@ -22,5 +22,12 @@
             </excludes>
             <outputDirectory>./</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>${basedir}</directory>
+            <includes>
+                <include>README.md</include>
+            </includes>
+            <outputDirectory>./</outputDirectory>
+        </fileSet>
     </fileSets>
 </assembly>

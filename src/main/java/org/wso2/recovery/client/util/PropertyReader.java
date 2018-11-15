@@ -20,6 +20,7 @@ package org.wso2.recovery.client.util;
 
 import org.apache.log4j.Logger;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -32,7 +33,7 @@ public class PropertyReader {
 
     public static Properties loadProperties (String filePath) throws IOException {
         log.info("Loading properties from : " + filePath);
-        InputStream inputStream = PropertyReader.class.getClassLoader().getResourceAsStream(filePath);
+        InputStream inputStream = new FileInputStream(filePath);
         Properties properties = new Properties();
         if (inputStream != null) {
             properties.load(inputStream);
