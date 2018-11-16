@@ -71,8 +71,9 @@ public class QuestionCreator {
             challengeQuestions[i] = new ChallengeQuestion();
             challengeQuestions[i].setLocale(configs.getProperty(Constants.QUESTIONS_LOCALE));
             challengeQuestions[i].setQuestionSetId(configs.getProperty(Constants.QUESTIONS_SET_ID));
-            // Challenge question ID should only contain alpha-numeric values. Removing '.'.
-            challengeQuestions[i].setQuestionId(entry.getKey().toString().replace(".",""));
+            // Challenge question id is only alpha numeric.
+            // Take only the string after last '.' as the question id. Eg : form.list.common.ChallengeQuestion.Q9  -> Q9
+            challengeQuestions[i].setQuestionId(entry.getKey().toString().substring(entry.getKey().toString().lastIndexOf('.') + 1));
             challengeQuestions[i].setQuestion(entry.getValue().toString());
             i++;
         }
