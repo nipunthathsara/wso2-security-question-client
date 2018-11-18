@@ -26,3 +26,5 @@ hs_err_pid*
 target/
 wso2-security-question-client.iml
 log.out
+result.csv
+questions.properties
