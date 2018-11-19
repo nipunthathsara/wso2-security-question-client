@@ -95,4 +95,13 @@ public class DataMigrator {
         }
         log.info("User challenge answers migration finished.");
     }
+
+    /**
+     * This method returns the created challengeQuestionAdmin stub.
+     * This is being used during DTO population to get the tenant challenge questions list.
+     * @return
+     */
+    public ChallengeQuestionManagementAdminServiceStub getStub(){
+        return this.stub;
+    }
 }

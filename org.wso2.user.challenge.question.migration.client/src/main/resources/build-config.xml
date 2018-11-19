@@ -11,7 +11,7 @@
         <fileSet>
             <directory>${project.build.directory}</directory>
             <includes>
-                <include>org.wso2.challenge.question.metadata.migration.client-1.0-SNAPSHOT-jar-with-dependencies.jar</include>
+                <include>org.wso2.user.challenge.question.migration.client-1.0-SNAPSHOT-jar-with-dependencies.jar</include>
             </includes>
             <outputDirectory>./</outputDirectory>
         </fileSet>

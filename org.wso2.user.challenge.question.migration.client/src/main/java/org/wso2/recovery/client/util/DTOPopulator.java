@@ -21,6 +21,8 @@ package org.wso2.recovery.client.util;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.wso2.carbon.identity.application.common.model.xsd.User;
+import org.wso2.carbon.identity.recovery.stub.ChallengeQuestionManagementAdminServiceIdentityRecoveryExceptionException;
+import org.wso2.carbon.identity.recovery.stub.ChallengeQuestionManagementAdminServiceStub;
 import org.wso2.carbon.identity.recovery.stub.model.ChallengeQuestion;
 import org.wso2.carbon.identity.recovery.stub.model.UserChallengeAnswer;
 import org.wso2.recovery.client.Constants;
@@ -28,6 +30,7 @@ import org.wso2.recovery.client.DTO;
 
 import java.io.File;
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -41,10 +44,13 @@ public class DTOPopulator {
     private static final Logger log = Logger.getLogger(DTOPopulator.class);
     private String filePath;
     private Properties configs;
+    private ChallengeQuestion[] tenantQuestions;
+    private ChallengeQuestionManagementAdminServiceStub stub;
 
-    public DTOPopulator(String filePath, Properties configs) {
+    public DTOPopulator(String filePath, Properties configs, ChallengeQuestionManagementAdminServiceStub stub) {
         this.filePath = filePath;
         this.configs = configs;
+        this.stub = stub;
     }
 
     /**
@@ -53,8 +59,10 @@ public class DTOPopulator {
      * @return
      * @throws IOException
      */
-    public ArrayList<DTO> populateUserChallengeAnswerData() throws IOException {
+    public ArrayList<DTO> populateUserChallengeAnswerData() throws IOException, ChallengeQuestionManagementAdminServiceIdentityRecoveryExceptionException {
         ArrayList<DTO> userData = new ArrayList();
+        // Get all challenge questions available for the tenant domain.
+        this.tenantQuestions = getChallengeQuestionsOfTenant(configs.getProperty(Constants.USER_TENANT_DOMAIN));
 
         log.info("Reading user challenge answer data from file : " + filePath);
         File file = new File(filePath);
@@ -82,7 +90,13 @@ public class DTOPopulator {
                 dto.setUser(user);
                 // Populate userChallengeAnswers' attributes
                 challengeQuestion.setQuestionId(splitted[2]);
-                challengeQuestion.setQuestion("What's your best friend's name?");
+                String questionString = getQuestionFromId(challengeQuestion.getQuestionId());
+                if(questionString != null){
+                    challengeQuestion.setQuestion(questionString);
+                } else {
+                    log.info("Aborting entry. Unable to find a matching question for the question Id.");
+                    continue;
+                }
                 challengeQuestion.setLocale(configs.getProperty(Constants.USER_QUESTION_LOCALE));
                 challengeQuestion.setQuestionSetId(configs.getProperty(Constants.USER_QUESTION_SET_ID));
                 userChallengeAnswer.setAnswer(createAnswerString(splitted));
@@ -111,7 +125,44 @@ public class DTOPopulator {
         // Answer starts at third column and ends where the line ends.
         for (int i = 3; i < line.length; i++) {
             answer += line[i];
+            // If user answer has more than one word separate them by a single space.
+            if ((i + 1) < line.length){
+                answer += " ";
+            }
         }
         return answer;
+    }
+
+    /**
+     * This method returns all available challenge questions for a given tenant.
+     * @param tenantDomain
+     * @throws RemoteException
+     * @throws ChallengeQuestionManagementAdminServiceIdentityRecoveryExceptionException
+     */
+    private ChallengeQuestion[] getChallengeQuestionsOfTenant(String tenantDomain) throws RemoteException, ChallengeQuestionManagementAdminServiceIdentityRecoveryExceptionException {
+        log.info("Retrieving all challenge questions for the tenant : " + tenantDomain);
+        return stub.getChallengeQuestionsOfTenant(tenantDomain);
+    }
+
+    /**
+     * This method search for a given question ID in the tenant challenge question and returns question string.
+     * @param questionId
+     * @return
+     */
+    private String getQuestionFromId(String questionId) {
+        log.info("Searching question of question Id : " + questionId);
+        if (tenantQuestions != null && tenantQuestions.length > 0) {
+            for (ChallengeQuestion question : this.tenantQuestions) {
+                if(question != null && questionId.equals(question.getQuestionId())){
+                    log.info("Match found for question Id : " + questionId + " question : " + question.getQuestion());
+                    return question.getQuestion();
+                }
+            }
+        } else{
+            log.error("Null or empty set of tenant questions received. Aborting process.");
+            System.exit(1);
+        }
+        log.error("No matching question found for question Id : " + questionId);
+        return null;
     }
 }

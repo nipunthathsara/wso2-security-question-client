@@ -21,6 +21,7 @@ package org.wso2.recovery.client;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
+import org.wso2.carbon.identity.recovery.stub.ChallengeQuestionManagementAdminServiceIdentityRecoveryExceptionException;
 import org.wso2.recovery.client.util.AuthenticationServiceClient;
 import org.wso2.recovery.client.util.DTOPopulator;
 import org.wso2.recovery.client.util.PropertyReader;
@@ -38,7 +39,8 @@ public class Invoker {
     public static Properties configs;
     public static String tenantDomain;
 
-    public static void main(String[] args) throws IOException, LoginAuthenticationExceptionException {
+    public static void main(String[] args) throws IOException, LoginAuthenticationExceptionException,
+            ChallengeQuestionManagementAdminServiceIdentityRecoveryExceptionException {
         // Initialize
         try {
             initialize();
@@ -58,11 +60,12 @@ public class Invoker {
 
         // Create data for the tenant
         if (cookie != null) {
+            DataMigrator dataMigrator = new DataMigrator(cookie, configs);
             // Read data and populate DTO
-            DTOPopulator DTOPopulator = new DTOPopulator("/home/nipun/data/vodafone/wso2-security-question-client/org.wso2.user.challenge.question.migration.client/src/main/resources/result.csv", configs);
+            DTOPopulator DTOPopulator = new DTOPopulator(Paths.get(".", configs.getProperty(Constants.INPUT_FILE_NAME)).toString(),
+                    configs, dataMigrator.getStub());
             ArrayList<DTO> userData = DTOPopulator.populateUserChallengeAnswerData();
             // Migrate challenge answer data to Identity Server.
-            DataMigrator dataMigrator = new DataMigrator(cookie, configs);
             dataMigrator.migrateUserChallengeAnswerData(userData);
         } else {
             log.error("Session cookie null. Authentication failure. Aborting process. ");
@@ -76,15 +79,15 @@ public class Invoker {
     public static void initialize() throws IOException {
         log.info("Initialization started.");
         // Set log4j configs
-        PropertyConfigurator.configure(Paths.get("/home/nipun/data/vodafone/wso2-security-question-client/org.wso2.user.challenge.question.migration.client/src/main/resources", Constants.LOG4J_PROPERTIES).toString());
+        PropertyConfigurator.configure(Paths.get(".", Constants.LOG4J_PROPERTIES).toString());
         // Read client configurations
-        configs = PropertyReader.loadProperties(Paths.get("/home/nipun/data/vodafone/wso2-security-question-client/org.wso2.user.challenge.question.migration.client/src/main/resources", Constants.CONFIGURATION_PROPERTIES).toString());
+        configs = PropertyReader.loadProperties(Paths.get(".", Constants.CONFIGURATION_PROPERTIES).toString());
 
         // Set trust-store configurations to the JVM
         log.info("Setting trust store configurations to JVM.");
         if (configs.getProperty(Constants.TRUST_STORE_PASSWORD) != null && configs.getProperty(Constants.TRUST_STORE_TYPE) != null
-                && configs.getProperty(Constants.TRUST_STORE_PATH) != null) {
-            System.setProperty("javax.net.ssl.trustStore", Paths.get("/home/nipun/data/vodafone/wso2-security-question-client/org.wso2.user.challenge.question.migration.client/src/main/resources", configs.getProperty(Constants.TRUST_STORE_PATH)).toString());
+                && configs.getProperty(Constants.TRUST_STORE) != null) {
+            System.setProperty("javax.net.ssl.trustStore", Paths.get(".", configs.getProperty(Constants.TRUST_STORE)).toString());
             System.setProperty("javax.net.ssl.trustStorePassword", configs.getProperty(Constants.TRUST_STORE_PASSWORD));
             System.setProperty("javax.net.ssl.trustStoreType", configs.getProperty(Constants.TRUST_STORE_TYPE));
         } else {

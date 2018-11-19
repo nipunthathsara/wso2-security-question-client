@@ -30,7 +30,7 @@ public class Constants {
     public static final String ADMIN_USERNAME = "admin.username";
     public static final String ADMIN_PASSWORD = "admin.password";
 
-    public static final String TRUST_STORE_PATH = "truststore.path";
+    public static final String TRUST_STORE = "truststore";
     public static final String TRUST_STORE_PASSWORD = "truststore.password";
     public static final String TRUST_STORE_TYPE = "truststore.type";
 

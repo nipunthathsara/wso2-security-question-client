@@ -78,8 +78,8 @@ public class Invoker {
         // Set trust-store configurations to the JVM
         log.info("Setting trust store configurations to the JVM.");
         if (configs.getProperty(Constants.TRUST_STORE_PASSWORD) != null && configs.getProperty(Constants.TRUST_STORE_TYPE) != null
-                && configs.getProperty(Constants.TRUST_STORE_PATH) != null) {
-            System.setProperty("javax.net.ssl.trustStore", Paths.get(".", configs.getProperty(Constants.TRUST_STORE_PATH)).toString());
+                && configs.getProperty(Constants.TRUST_STORE) != null) {
+            System.setProperty("javax.net.ssl.trustStore", Paths.get(".", configs.getProperty(Constants.TRUST_STORE)).toString());
             System.setProperty("javax.net.ssl.trustStorePassword", configs.getProperty(Constants.TRUST_STORE_PASSWORD));
             System.setProperty("javax.net.ssl.trustStoreType", configs.getProperty(Constants.TRUST_STORE_TYPE));
         } else {
