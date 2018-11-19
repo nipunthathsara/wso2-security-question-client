@@ -22,33 +22,6 @@ import org.wso2.carbon.identity.application.common.model.xsd.User;
 import org.wso2.carbon.identity.recovery.stub.model.UserChallengeAnswer;
 
 public class DTO {
-    //    private String userName;
-//    private String questionId;
-//    private String answer;
-//
-//    public String getUserName() {
-//        return userName;
-//    }
-//
-//    public void setUserName(String userName) {
-//        this.userName = userName;
-//    }
-//
-//    public String getQuestionId() {
-//        return questionId;
-//    }
-//
-//    public void setQuestionId(String questionId) {
-//        this.questionId = questionId;
-//    }
-//
-//    public String getAnswer() {
-//        return answer;
-//    }
-//
-//    public void setAnswer(String answer) {
-//        this.answer = answer;
-//    }
     private User user;
     private UserChallengeAnswer[] userChallengeAnswers;
 
